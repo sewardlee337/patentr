@@ -4,7 +4,7 @@ library(jsonlite)
 library(httr)
 library(dplyr)
 
-pair.bulk.url <- 'https://pairbulkdata.uspto.gov/api/'  # This is the root URL for API
+pair.bulk.url <- 'https://pairbulkdata.uspto.gov/api'  # This is the root URL for API
 
 
 ##   Function to return search fields for API queries
@@ -19,21 +19,48 @@ GetFieldsPAIR <- function(){
 }
 
 
-GetFieldsPAIR()     ## Test to see if it works
+GetFieldsPAIR()     # Test to see if it works
 
-##   Function to make a POST request
+##   Function to make a POST request (make a query)
+##   This function returns Status Code and Query ID
 
-PostPAIR <- function(search.text, query.fields) {
+PostQueryPAIR <- function(search.text, query.fields) {
      
      query.request <- list(searchText = search.text, qf = query.fields)
      
      response <- pair.bulk.url %>%
           paste0('/queries') %>%
-          httr::POST(body = query.request, encode ='json') %>%
-          httr::content()
+          httr::POST(body = query.request, encode ='json') 
+
+     output <- list(response.body = response, query.id = 
+                         httr::content(response)$queryId)
      
-     return(response)
+     return(output)
 }
 
 
-PostPAIR('diabetes', 'patentTitle')     # Test using arguments from API documentation   
+PostQueryPAIR('diabetes', 'patentTitle')     # Test using arguments from API documentation   
+
+
+##   Function to make a GET request (retrieve query results)
+
+GetQueryPAIR <- function(search.text, query.fields){
+     
+     ##   Retrieve relevant query ID
+     post.response <- PostQueryPAIR(search.text, query.fields)
+     
+     query.id <- post.response$query.id
+     
+     ##   Issue a GET request
+     response <- pair.bulk.url %>%
+          paste0('/queries/', query.id, '?format=JSON') %>%
+          httr::GET() %>%
+          httr::content()
+     
+     ##   Take URL returned by GET request, download file
+     
+     data <- response$links[[2]]$href %>%
+          fromJSON() 
+     
+     return(data)
+}
