@@ -62,5 +62,12 @@ GetQueryPAIR <- function(search.text, query.fields){
      data <- response$links[[2]]$href %>%
           fromJSON() 
      
+     data <- data$queryResults$searchResponse$response$docs %>%
+          data.frame()
+     
+     drops <- c("publishDocJson")   ## Should we drop these columns????
+     
+     data <- data[, !(names(data) %in% drops)]
+     
      return(data)
 }
