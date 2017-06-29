@@ -2,6 +2,4 @@
 
 **This project is under active development. Check back periodically for updates**
 
-## PAIR Bulk Data API
-
-* [Interactive documentation](https://pairbulkdata.uspto.gov/swagger/index.html#!/home/showHomePageUsingGET)
+`patentr` is an R package that allows for efficient retrieval and management of data relating to intellectual property, with a focus on patent data. It contains a suite of functions that provide access to APIs and databases maintained by the U.S. Patent and Trademark Office.
